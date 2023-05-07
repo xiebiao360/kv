@@ -1,0 +1,26 @@
+use anyhow::{Ok, Result};
+use async_prost::AsyncProstStream;
+use kv::{CommandRequest, CommandResponse};
+use tokio::net::TcpStream;
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    tracing_subscriber::fmt::init();
+
+    let addr = "127.0.0.1:9527";
+
+    // 连接服务器
+    let stream = TcpStream::connect(addr).await?;
+
+    // 使用 AsyncProstStream 来处理 TCP Frame
+    let mut client =
+        AsyncProstStream::<_, CommandResponse, CommandRequest, _>::from(stream).for_async();
+
+    // 生成一个 HSET 命令
+    let cmd = CommandRequest::new_hset("table1", "hello", "world".into());
+
+    // 发送 HSET 命令
+    client.send_message(cmd).await?;
+
+    Ok(())
+}

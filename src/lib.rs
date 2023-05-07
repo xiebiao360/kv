@@ -1,3 +1,6 @@
+mod pb;
+pub use pb::abi::*;
+
 pub fn add(left: usize, right: usize) -> usize {
     left + right
 }
